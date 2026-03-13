@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speedworld CRM - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --blue: #004a7c; --teal: #008080; --light: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light); margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: var(--blue); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .card { background: white; padding: 25px; border-radius: 10px; shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid var(--teal); }
+        .data-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .label { font-weight: bold; color: #666; }
+        .value { color: var(--blue); font-weight: bold; }
+        .balance-red { color: #d32f2f; font-size: 1.2em; }
+        .loading { text-align: center; padding: 50px; font-style: italic; color: #888; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Speedworld Admin Panel</h2>
+        <div id="status-tag">Live Database</div>
+    </div>
+
+    <div id="loading-view" class="loading">Fetching data from Supabase...</div>
+
+    <div id="main-content" style="display:none;">
+        <div class="card">
+            <h3>Customer Overview</h3>
+            <div class="data-row"><span class="label">Name:</span> <span class="value" id="name"></span></div>
+            <div class="data-row"><span class="label">User ID:</span> <span class="value" id="uid"></span></div>
+            <div class="data-row"><span class="label">Current Plan:</span> <span class="value" id="plan"></span></div>
+            <div class="data-row"><span class="label">Expiry Date:</span> <span class="value" id="expiry"></span></div>
+            <div class="data-row"><span class="label">Status:</span> <span class="value" id="status"></span></div>
+            <div class="data-row" style="border:none;">
+                <span class="label">Amount Due:</span> 
+                <span class="balance-red" id="balance"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // CONNECTION SETUP
+    const SUPABASE_URL = 'https://xornzelybefhpcpfrmhl.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_UZD-UWg94FObGgah7XbyUA_64-1uj9M';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function loadSpeedworldData() {
+        // Fetch the first user from your 'customers' table
+        const { data, error } = await _supabase
+            .from('customers')
+            .select('*')
+            .limit(1)
+            .single();
+
+        if (error) {
+            console.error('Error:', error);
+            document.getElementById('loading-view').innerText = "Error: Check if 'customers' table exists!";
+            return;
+        }
+
+        if (data) {
+            // Update the UI with your CSV data
+            document.getElementById('name').innerText = data.full_name;
+            document.getElementById('uid').innerText = data.user_id;
+            document.getElementById('plan').innerText = data.current_plan;
+            document.getElementById('expiry').innerText = data.plan_expiry;
+            document.getElementById('status').innerText = data.account_status;
+            document.getElementById('balance').innerText = "₹" + data.current_balance;
+
+            // Show content, hide loading
+            document.getElementById('loading-view').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+    }
+
+    loadSpeedworldData();
+</script>
+
+</body>
+</html>
