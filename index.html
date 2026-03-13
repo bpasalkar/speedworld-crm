@@ -3,79 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speedworld CRM</title>
+    <title>Speedworld CRM - Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --blue: #004a7c; --teal: #008080; --light: #f0f2f5; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding-bottom: 80px; }
+        :root { --blue: #004a7c; --teal: #008080; --light: #f0f2f5; --red: #d32f2f; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
         
-        /* Sleek Header */
-        .app-header { background: var(--blue); color: white; padding: 30px 20px; border-radius: 0 0 25px 25px; text-align: center; }
+        /* Card & Header Styles */
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid var(--teal); }
+        .header { background: var(--blue); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
         
-        .container { max-width: 500px; margin: -40px auto 0; padding: 0 15px; }
+        /* Action Grid */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .action-card { background: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 1px solid #ddd; transition: 0.3s; }
+        .action-card:hover { border-color: var(--teal); background: #f9f9f9; }
+        .action-card i { font-size: 24px; color: var(--blue); margin-bottom: 8px; }
         
-        /* Action Cards */
-        .card { background: var(--white); border-radius: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        /* Table Styles */
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { text-align: left; color: #666; padding: 8px; border-bottom: 2px solid #eee; }
+        td { padding: 10px 8px; border-bottom: 1px solid #eee; }
         
-        /* Usage Gauge */
-        .usage-container { margin: 15px 0; }
-        .progress-bar { background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; }
-        .progress-fill { background: var(--teal); height: 100%; width: 0%; transition: width 1s; }
-        
-        /* Grid Buttons */
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .action-btn { background: var(--white); border: 1px solid #eee; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; }
-        .action-btn i { font-size: 24px; color: var(--blue); margin-bottom: 8px; display: block; }
-        
-        /* Dynamic Payment Button */
-        #pay-button { background: #d32f2f; color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; margin-top: 10px; display: none; }
-        
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+        /* Status Badges */
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
         .open { background: #fff3e0; color: #ef6c00; }
+        .inprogress { background: #e3f2fd; color: #1565c0; }
+
+        /* Dynamic Payment Button */
+        #pay-btn { background: var(--red); color: white; border: none; padding: 12px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; display: none; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<div class="app-header">
-    <h2 style="margin:0;">Speedworld</h2>
-    <p id="greet">Hello, Subscriber</p>
-</div>
-
 <div class="container">
-    <div class="card">
-        <div style="display:flex; justify-content:space-between;">
-            <span id="plan-name" style="font-weight:bold; color:var(--blue);">Loading Plan...</span>
-            <span class="badge open" id="status-label">Active</span>
-        </div>
-        
-        <div class="usage-container">
-            <p style="font-size:12px; color:#666;">Plan Validity</p>
-            <div class="progress-bar"><div id="expiry-progress" class="progress-fill"></div></div>
-            <p id="expiry-text" style="font-size:12px; margin-top:5px; text-align:right;">-- days left</p>
-        </div>
+    <div class="header">
+        <h2 style="margin:0">Speedworld CRM</h2>
+        <small id="user-greet">Connected to Live Database</small>
+    </div>
 
-        <div id="balance-section">
-            <p style="margin:0; font-size:14px;">Due Amount:</p>
-            <h1 id="balance-amt" style="margin:5px 0; color:#d32f2f;">₹0</h1>
-            <button id="pay-button" onclick="alert('Redirecting to Payment Gateway...')">PAY NOW</button>
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 id="cust-name" style="margin:0">Loading...</h3>
+            <span id="cust-id" style="color:#888; font-size:12px;"></span>
         </div>
+        <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+        <p><strong>Plan:</strong> <span id="cust-plan">--</span></p>
+        <p style="margin-bottom:0"><strong>Balance:</strong> <span id="cust-bal" style="color:var(--red); font-weight:bold;">₹0</span></p>
+        <button id="pay-btn" onclick="alert('Redirecting to Payment Gateway...')">PAY NOW</button>
     </div>
 
     <div class="action-grid">
-        <div class="action-btn" onclick="scrollToSupport()">
-            <i class="fa-solid fa-headset"></i>
-            <span>Support</span>
+        <div class="action-card" onclick="requestCollection()">
+            <i class="fa-solid fa-hand-holding-dollar"></i><br>
+            <strong>Request Cash Collection</strong>
         </div>
-        <div class="action-btn">
-            <i class="fa-solid fa-repeat"></i>
-            <span>Change Plan</span>
+        <div class="action-card" onclick="toggleUpgrade()">
+            <i class="fa-solid fa-rocket"></i><br>
+            <strong>Upgrade Plan</strong>
         </div>
     </div>
 
-    <div class="card" style="margin-top:20px;">
-        <h3>Active Requests</h3>
-        <div id="ticket-list" style="font-size: 14px;"></div>
+    <div id="upgrade-section" class="card" style="display:none; border-left-color: var(--blue);">
+        <h3>Choose New Plan</h3>
+        <select id="plan-select" style="width:100%; padding:10px; margin-bottom:10px;">
+            <option value="50 Mbps Starter">50 Mbps Starter - ₹499</option>
+            <option value="100 Mbps Unlimited">100 Mbps Unlimited - ₹699</option>
+            <option value="200 Mbps Premium">200 Mbps Premium - ₹999</option>
+        </select>
+        <button onclick="updatePlan()" style="background:var(--teal); color:white; border:none; padding:10px; width:100%; border-radius:5px;">Confirm Upgrade</button>
+    </div>
+
+    <div class="card">
+        <h3>Active Tickets</h3>
+        <table id="ticket-table">
+            <thead><tr><th>ID</th><th>Category</th><th>Status</th></tr></thead>
+            <tbody id="ticket-body"></tbody>
+        </table>
     </div>
 </div>
 
@@ -84,40 +89,55 @@
     const SUPABASE_KEY = 'sb_publishable_UZD-UWg94FObGgah7XbyUA_64-1uj9M';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function initApp() {
-        const { data: user } = await _supabase.from('customers').select('*').limit(1).single();
-        
+    async function loadApp() {
+        const { data: user } = await _supabase.from('customers').select('*').eq('user_id', 'SW-1052').single();
         if (user) {
-            document.getElementById('greet').innerText = "Hello, " + user.full_name;
-            document.getElementById('plan-name').innerText = user.current_plan;
-            document.getElementById('balance-amt').innerText = "₹" + user.current_balance;
+            document.getElementById('cust-name').innerText = user.full_name;
+            document.getElementById('cust-id').innerText = user.user_id;
+            document.getElementById('cust-plan').innerText = user.current_plan;
+            document.getElementById('cust-bal').innerText = "₹" + user.current_balance;
             
-            // 1. Show Payment Button if balance exists
-            if (user.current_balance > 0) {
-                document.getElementById('pay-button').style.display = 'block';
-            }
+            if(user.current_balance > 0) document.getElementById('pay-btn').style.display = 'block';
 
-            // 2. Logic for Expiry Progress (assuming 30-day plans)
-            const daysLeft = 15; // In real app, calculate from user.plan_expiry
-            const percent = (daysLeft / 30) * 100;
-            document.getElementById('expiry-progress').style.width = percent + "%";
-            document.getElementById('expiry-text').innerText = daysLeft + " days left";
-
-            // 3. Load Tickets
             const { data: tickets } = await _supabase.from('tickets').select('*').eq('customer_id', user.user_id);
-            document.getElementById('ticket-list').innerHTML = tickets.map(t => 
-                `<div style="padding:10px 0; border-bottom:1px solid #eee;">
-                    <strong>${t.ticket_number}</strong> - ${t.ticket_status}<br>
-                    <small>${t.category}</small>
-                </div>`).join('');
+            document.getElementById('ticket-body').innerHTML = tickets.map(t => `
+                <tr>
+                    <td>${t.ticket_number}</td>
+                    <td>${t.category}</td>
+                    <td><span class="badge ${t.ticket_status.toLowerCase().replace(' ', '')}">${t.ticket_status}</span></td>
+                </tr>
+            `).join('');
         }
     }
 
-    function scrollToSupport() {
-        alert("Support form would open here!");
+    async function requestCollection() {
+        const { error } = await _supabase.from('tickets').insert([{ 
+            ticket_number: "PAY-" + Math.floor(1000 + Math.random() * 9000),
+            customer_id: 'SW-1052',
+            category: 'Cash Collection',
+            problem_desc: 'User requested home visit for cash payment.',
+            ticket_status: 'Open'
+        }]);
+        if (!error) alert("Collection request sent! An agent will call you.");
+        loadApp();
     }
 
-    initApp();
+    function toggleUpgrade() {
+        const div = document.getElementById('upgrade-section');
+        div.style.display = div.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function updatePlan() {
+        const newPlan = document.getElementById('plan-select').value;
+        const { error } = await _supabase.from('customers').update({ current_plan: newPlan }).eq('user_id', 'SW-1052');
+        if (!error) {
+            alert("Plan upgraded successfully!");
+            loadApp();
+            toggleUpgrade();
+        }
+    }
+
+    loadApp();
 </script>
 
 </body>
