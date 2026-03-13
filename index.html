@@ -30,6 +30,7 @@
     <div id="loading-view" class="loading">Fetching data from Supabase...</div>
 
     <div id="main-content" style="display:none;">
+        
         <div class="card">
             <h3>Customer Overview</h3>
             <div class="data-row"><span class="label">Name:</span> <span class="value" id="name"></span></div>
@@ -41,9 +42,7 @@
                 <span class="label">Amount Due:</span> 
                 <span class="balance-red" id="balance"></span>
             </div>
-        </div>
-
-        <div class="card">
+        </div> <div class="card" style="margin-top: 20px;">
             <h3>Raise a Complaint</h3>
             <form id="complaint-form">
                 <div class="data-row">
@@ -53,8 +52,7 @@
                         <option value="No Internet">No Internet</option>
                         <option value="Slow Speed">Slow Speed</option>
                         <option value="Billing">Billing Issue</option>
-                        <option value="Other Issue">Other Issue</option>
-                    </select>
+                        <option value="Other Issue">Other Issue</option> </select>
                 </div>
                 <div class="data-row" style="flex-direction: column; align-items: flex-start;">
                     <span class="label">Problem Description:</span>
@@ -66,9 +64,9 @@
             </form>
             <div id="form-feedback" style="margin-top: 10px; font-weight: bold; text-align: center;"></div>
         </div>
+
     </div>
 </div>
-
 <script>
     // CONNECTION SETUP
     const SUPABASE_URL = 'https://xornzelybefhpcpfrmhl.supabase.co';
