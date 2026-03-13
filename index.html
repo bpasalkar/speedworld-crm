@@ -1,54 +1,108 @@
-<header class="main-header">
-    <div class="logo">SPEEDWORLD</div>
-    <div class="header-icons">
-        <i class="fas fa-bell"></i>
-        <div class="profile-circle">RK</div>
-    </div>
-</header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Speedworld Pro App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<main class="app-body">
-    <div class="alert-banner">
-        <i class="fas fa-bolt"></i>
-        <marquee>Maintenance: Badlapur East on 20th March, 2 AM. Get 50% off on your first month!</marquee>
-    </div>
-
-    <section class="horizontal-scroll">
-        <div class="promo-card orange-glow">
-            <span class="badge">REFERRAL</span>
-            <h3>Refer & Earn</h3>
-            <p>Get ₹500 discount for every friend!</p>
+    <header class="app-header">
+        <div class="brand">SPEEDWORLD</div>
+        <div class="header-actions">
+            <i class="fas fa-bell"></i>
+            <div class="user-avatar">RK</div>
         </div>
-        <div class="promo-card blue-glow">
-            <span class="badge">NEW</span>
-            <h3>OTT Dhamaka</h3>
-            <p>Free Netflix & Hotstar with Annual plans.</p>
-        </div>
-    </section>
+    </header>
 
-    <section class="glass-card">
-        <h3>New Connection Inquiry</h3>
-        <p class="hinttext">Our team will call you within 24 hours.</p>
-        <div class="input-group">
-            <input type="text" id="inq-name" placeholder="Full Name">
-            <input type="tel" id="inq-phone" placeholder="Mobile Number">
-            <select id="inq-area">
-                <option value="">Select Area</option>
-                <option value="East">Badlapur East</option>
-                <option value="West">Badlapur West</option>
-            </select>
-        </div>
-        <button class="btn-action" onclick="api.submitInquiry()">Request Callback</button>
-    </section>
-</main>
+    <main class="content-container">
+        
+        <section id="home-tab" class="tab-content active">
+            <div class="ticker-box">
+                <i class="fas fa-bullhorn"></i>
+                <marquee>Maintenance scheduled for Badlapur East on 20th March, 2 AM. | Refer a friend and get ₹500 discount!</marquee>
+            </div>
 
-<nav class="bottom-tab-bar">
-    <div class="tab-item active" onclick="switchTab('home')">
-        <i class="fas fa-house"></i><span>Home</span>
-    </div>
-    <div class="tab-item" onclick="switchTab('plans')">
-        <i class="fas fa-layer-group"></i><span>Plans</span>
-    </div>
-    <div class="tab-item" onclick="switchTab('account')">
-        <i class="fas fa-user-circle"></i><span>My Account</span>
-    </div>
-</nav>
+            <div class="promo-scroller">
+                <div class="promo-card purple">
+                    <h3>OTT Dhamaka</h3>
+                    <p>Free Netflix & Hotstar with Annual plans.</p>
+                </div>
+                <div class="promo-card orange">
+                    <h3>Refer & Earn</h3>
+                    <p>Get ₹500 for every successful referral.</p>
+                </div>
+            </div>
+
+            <div class="card inquiry-card">
+                <h3>New Connection?</h3>
+                <p>Fill this and we'll call you back.</p>
+                <div class="form-body">
+                    <input type="text" id="inq-name" placeholder="Full Name">
+                    <input type="tel" id="inq-phone" placeholder="Mobile Number">
+                    <select id="inq-area">
+                        <option value="">Select Area</option>
+                        <option value="East">Badlapur East</option>
+                        <option value="West">Badlapur West</option>
+                    </select>
+                    <button class="btn-primary" onclick="api.submitInquiry()">Request Callback</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="plans-tab" class="tab-content">
+            <h3 class="title">Our Best Plans</h3>
+            <div class="plan-card featured">
+                <div class="plan-info">
+                    <h4>Fiber Entertainment</h4>
+                    <p>100 Mbps + 12 OTT Apps</p>
+                </div>
+                <div class="plan-price">₹699<span>/mo</span></div>
+            </div>
+            <div class="plan-card">
+                <div class="plan-info">
+                    <h4>Starter Fiber</h4>
+                    <p>40 Mbps Unlimited</p>
+                </div>
+                <div class="plan-price">₹399<span>/mo</span></div>
+            </div>
+        </section>
+
+        <section id="account-tab" class="tab-content">
+            <div class="card dash-card">
+                <div class="flex-row">
+                    <h3 id="plan-name">200 Mbps Premium</h3>
+                    <span class="badge">Active</span>
+                </div>
+                <h1 id="balance-display">₹599</h1>
+                <p id="expiry-date">Expires: 2025-08-15</p>
+                <button class="btn-pay" onclick="alert('Paying...')">PAY NOW</button>
+            </div>
+
+            <div class="service-grid">
+                <div class="service-item" onclick="toggleSupport()"><i class="fas fa-headset"></i>Support</div>
+                <div class="service-item" onclick="api.requestCashCollection()"><i class="fas fa-motorcycle"></i>Cash Pick</div>
+                <div class="service-item" onclick="window.open('https://wa.me/')"><i class="fab fa-whatsapp"></i>WhatsApp</div>
+                <div class="service-item" onclick="switchTab('plans-tab')"><i class="fas fa-rocket"></i>Upgrade</div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home-tab', this)">
+            <i class="fas fa-home"></i><span>Home</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('plans-tab', this)">
+            <i class="fas fa-layer-group"></i><span>Plans</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('account-tab', this)">
+            <i class="fas fa-user-circle"></i><span>Account</span>
+        </div>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+</body>
+</html>
