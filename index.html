@@ -1,43 +1,54 @@
-<header class="app-header">
+<header class="main-header">
     <div class="logo">SPEEDWORLD</div>
-    <div class="user-profile"><i class="fas fa-circle-user fa-xl"></i></div>
+    <div class="header-icons">
+        <i class="fas fa-bell"></i>
+        <div class="profile-circle">RK</div>
+    </div>
 </header>
 
-<main class="container">
-    <div id="home-tab" class="tab-content active">
-        <div class="notice-bar">
-            <i class="fas fa-triangle-exclamation"></i>
-            <marquee>Limited Time: Get 1 Month Free on Yearly Subscriptions! | New OTT Bundle with Disney+ Hotstar is live.</marquee>
-        </div>
-
-        <div class="promo-slider">
-            <div class="promo-card grad-1">
-                <h3>Refer & Earn</h3>
-                <p>₹500 for you, ₹500 for them!</p>
-            </div>
-            <div class="promo-card grad-2">
-                <h3>OTT Dhamaka</h3>
-                <p>12+ Apps with Fiber Pro</p>
-            </div>
-        </div>
-
-        <div class="service-grid">
-            <div class="service-item" onclick="switchTab('account-tab')"><i class="fas fa-receipt"></i>Pay</div>
-            <div class="service-item" onclick="switchTab('plans-tab')"><i class="fas fa-rocket"></i>Plans</div>
-            <div class="service-item" onclick="api.openWhatsApp()"><i class="fab fa-whatsapp"></i>Chat</div>
-            <div class="service-item" onclick="toggleDrawer('inq-drawer')"><i class="fas fa-plus"></i>New</div>
-        </div>
+<main class="app-body">
+    <div class="alert-banner">
+        <i class="fas fa-bolt"></i>
+        <marquee>Maintenance: Badlapur East on 20th March, 2 AM. Get 50% off on your first month!</marquee>
     </div>
+
+    <section class="horizontal-scroll">
+        <div class="promo-card orange-glow">
+            <span class="badge">REFERRAL</span>
+            <h3>Refer & Earn</h3>
+            <p>Get ₹500 discount for every friend!</p>
+        </div>
+        <div class="promo-card blue-glow">
+            <span class="badge">NEW</span>
+            <h3>OTT Dhamaka</h3>
+            <p>Free Netflix & Hotstar with Annual plans.</p>
+        </div>
+    </section>
+
+    <section class="glass-card">
+        <h3>New Connection Inquiry</h3>
+        <p class="hinttext">Our team will call you within 24 hours.</p>
+        <div class="input-group">
+            <input type="text" id="inq-name" placeholder="Full Name">
+            <input type="tel" id="inq-phone" placeholder="Mobile Number">
+            <select id="inq-area">
+                <option value="">Select Area</option>
+                <option value="East">Badlapur East</option>
+                <option value="West">Badlapur West</option>
+            </select>
+        </div>
+        <button class="btn-action" onclick="api.submitInquiry()">Request Callback</button>
+    </section>
 </main>
 
-<nav class="bottom-nav">
-    <div class="nav-btn active" onclick="switchTab('home-tab', this)">
+<nav class="bottom-tab-bar">
+    <div class="tab-item active" onclick="switchTab('home')">
         <i class="fas fa-house"></i><span>Home</span>
     </div>
-    <div class="nav-btn" onclick="switchTab('plans-tab', this)">
-        <i class="fas fa-list-check"></i><span>Plans</span>
+    <div class="tab-item" onclick="switchTab('plans')">
+        <i class="fas fa-layer-group"></i><span>Plans</span>
     </div>
-    <div class="nav-btn" onclick="switchTab('account-tab', this)">
-        <i class="fas fa-user-astronaut"></i><span>Account</span>
+    <div class="tab-item" onclick="switchTab('account')">
+        <i class="fas fa-user-circle"></i><span>My Account</span>
     </div>
 </nav>
