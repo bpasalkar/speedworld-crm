@@ -1,82 +1,46 @@
 :root {
-    --primary-blue: #004a7c;
-    --light-blue: #e3f2fd;
-    --dark-blue: #0d47a1;
-    --error-red: #d32f2f;
-    --card-bg: #ffffff;
-    --bg-gray: #f8f9fa;
+    --primary: #004a7c;
+    --accent: #ff4b2b;
+    --light-blue: #eef6fc;
+    --text-blue: #003366;
 }
 
-body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    background: var(--bg-gray); 
-    margin: 0; 
-    padding-bottom: 100px; 
+body { margin: 0; background: #f0f2f5; font-family: sans-serif; }
+
+/* Constrain to Mobile View */
+.mobile-wrapper {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #f0f2f5;
+    min-height: 100vh;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* Header Styling */
-.main-header { 
-    background: var(--primary-blue); 
-    color: white; 
-    padding: 20px; 
-    border-bottom-left-radius: 20px; 
-    border-bottom-right-radius: 20px; 
-}
-.header-content { display: flex; align-items: center; gap: 15px; }
-.logo-placeholder { 
-    background: rgba(255,255,255,0.2); 
-    width: 45px; height: 45px; 
-    border-radius: 50%; 
-    display: flex; align-items: center; justify-content: center; 
-    font-weight: bold; 
-}
-.brand-info h1 { margin: 0; font-size: 18px; letter-spacing: 1px; }
-.brand-info span { font-size: 11px; opacity: 0.8; }
+.app-header { background: var(--primary); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; border-radius: 0 0 20px 20px; }
+.logo-circle { background: rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.brand-text h1 { margin: 0; font-size: 16px; letter-spacing: 1px; }
+.brand-text span { font-size: 10px; opacity: 0.8; }
 
-/* Main Card */
-.account-info-card { 
-    background: var(--card-bg); 
-    margin: -25px 15px 20px; 
-    padding: 20px; 
-    border-radius: 15px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
-}
-.user-meta { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 10px; }
-.status-indicator { color: #2e7d32; font-weight: bold; }
-.plan-details { 
-    display: flex; justify-content: space-between; 
-    border-top: 1px solid #eee; padding-top: 15px; 
-}
-.detail-item label { display: block; font-size: 11px; color: #888; text-transform: uppercase; }
+/* Cards */
+.account-card { background: white; margin: -20px 15px 20px; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.member-label { font-size: 10px; color: #888; }
+.status-dot { float: right; color: #2e7d32; font-size: 10px; font-weight: bold; }
+.user-name { margin: 10px 0 0; font-size: 18px; }
+.user-id { margin: 0 0 15px; font-size: 12px; color: #666; }
 
-/* Dues UI */
-.dues-box { 
-    background: #ffebee; color: var(--error-red); 
-    padding: 12px; border-radius: 10px; 
-    margin-top: 15px; display: flex; 
-    justify-content: space-between; align-items: center; 
-}
-.btn-pay-now { 
-    background: var(--error-red); color: white; border: none; 
-    padding: 8px 15px; border-radius: 5px; font-weight: bold; 
-}
+.plan-row { display: flex; justify-content: space-between; border-top: 1px solid #eee; padding-top: 15px; }
+.plan-col label { display: block; font-size: 9px; color: #888; }
+.plan-col strong { font-size: 13px; color: var(--primary); }
 
-/* Action Buttons */
-.section-label { margin: 20px 15px 10px; font-size: 13px; color: #555; }
-.action-list { display: flex; flex-direction: column; gap: 10px; padding: 0 15px; }
-.action-btn { 
-    background: var(--light-blue); color: var(--dark-blue); 
-    border: none; padding: 18px; border-radius: 12px; 
-    text-align: left; font-weight: 600; 
-    display: flex; align-items: center; gap: 15px; 
-}
+.dues-alert { background: #ffebee; color: #c62828; padding: 12px; border-radius: 10px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.pay-btn-small { background: #c62828; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; }
 
-/* Bottom Nav */
-.bottom-nav {
-    position: fixed; bottom: 0; width: 100%; height: 75px;
-    background: white; display: flex; justify-content: space-around;
-    align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-}
-.nav-item { color: #888; text-align: center; font-size: 11px; }
-.nav-item.active { color: var(--primary-blue); }
-.nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+.action-stack { padding: 0 15px; display: flex; flex-direction: column; gap: 10px; }
+.action-item { background: var(--light-blue); color: var(--text-blue); border: none; padding: 16px; border-radius: 12px; text-align: left; font-weight: 600; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+
+/* Navigation */
+.bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; height: 70px; background: white; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; }
+.nav-item { text-align: center; color: #888; font-size: 10px; flex: 1; }
+.nav-item.active { color: var(--primary); font-weight: bold; }
+.nav-item i { display: block; font-size: 20px; margin-bottom: 4px; }
