@@ -2,78 +2,93 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speedworld - Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Speedworld Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header class="main-header">
-        <div class="header-content">
-            <div class="logo-placeholder">SL</div>
-            <div class="brand-info">
+    <div class="mobile-wrapper">
+        <header class="app-header">
+            <div class="logo-circle">SL</div>
+            <div class="brand-text">
                 <h1>SPEEDWORLD</h1>
                 <span>Fast. Reliable. Unlimited.</span>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="container">
-        <section class="card account-info-card">
-            <div class="user-meta">
-                <span class="member-since">Member since: Jan 2024</span>
-                <span class="status-indicator">● Connected</span>
-            </div>
-            
-            <h2 id="user-name">Rajesh Kumar</h2>
-            <p class="user-id">ID: SW-1052</p>
+        <main id="app-content">
+            <div id="home-view" class="view active">
+                <section class="account-card">
+                    <div class="card-top">
+                        <span class="member-label">Member since: Jan 2024</span>
+                        <span class="status-dot">● Connected</span>
+                    </div>
+                    <h2 class="user-name">Rajesh Kumar</h2>
+                    <p class="user-id">ID: SW-1052</p>
 
-            <div class="plan-details">
-                <div class="detail-item">
-                    <label>Current Plan</label>
-                    <strong id="plan-name">500 Mbps Business</strong>
+                    <div class="plan-row">
+                        <div class="plan-col">
+                            <label>CURRENT PLAN</label>
+                            <strong>500 Mbps Business</strong>
+                        </div>
+                        <div class="plan-col text-right">
+                            <label>EXPIRES IN</label>
+                            <strong>14 Days</strong>
+                        </div>
+                    </div>
+
+                    <div id="dues-bar" class="dues-alert">
+                        <span>Outstanding Dues: <strong>₹599</strong></span>
+                        <button class="pay-btn-small" onclick="switchTab('billing-view')">Pay Now</button>
+                    </div>
+
+                    <button class="renew-now-text" onclick="handleRenew()">Renew Now</button>
+                </section>
+
+                <h3 class="group-label">Quick Actions</h3>
+                <div class="action-stack">
+                    <button class="action-item" onclick="handleRenew()">
+                        <i class="fas fa-sync"></i> Renew / Change Plan
+                    </button>
+                    <button class="action-item" onclick="switchTab('billing-view')">
+                        <i class="fas fa-receipt"></i> Pay Bill
+                    </button>
+                    <button class="action-item" onclick="switchTab('support-view')">
+                        <i class="fas fa-headset"></i> Raise a Complaint
+                    </button>
                 </div>
-                <div class="detail-item text-right">
-                    <label>Expires In</label>
-                    <strong id="expiry-days">14 Days</strong>
+
+                <h3 class="group-label">More Options</h3>
+                <div class="more-links">
+                    <a href="#">Payment History</a>
+                    <a href="#">Plan History</a>
+                    <a href="#">Account Details</a>
                 </div>
             </div>
 
-            <div id="dues-section" class="dues-box">
-                <span>Outstanding Dues: <strong id="due-amount">₹599</strong></span>
-                <button class="btn-pay-now" onclick="switchTab('account-view')">Pay Now</button>
+            <div id="support-view" class="view">
+                <div class="card">
+                    <h3>Raise a Complaint</h3>
+                    <select id="issue-category" onchange="showTroubleshoot()">
+                        <option value="">Select Category</option>
+                        <option value="no-internet">No Internet</option>
+                        <option value="slow">Slow Speed</option>
+                    </select>
+                    <div id="ts-area" class="troubleshoot-box hidden"></div>
+                    <textarea placeholder="Describe your problem..."></textarea>
+                    <button class="primary-btn">Submit Complaint</button>
+                </div>
             </div>
+        </main>
 
-            <a href="#" class="renew-link" onclick="handleRenewal()">Renew Now</a>
-        </section>
-
-        <h4 class="section-label">Quick Actions</h4>
-        <div class="action-list">
-            <button class="action-btn" onclick="handleRenewal()">
-                <i class="fas fa-sync-alt"></i> Renew / Change Plan
-            </button>
-            <button class="action-btn" onclick="switchTab('account-view')">
-                <i class="fas fa-file-invoice-dollar"></i> Pay Bill
-            </button>
-            <button class="action-btn" onclick="switchTab('support-view')">
-                <i class="fas fa-exclamation-circle"></i> Raise a Complaint
-            </button>
-        </div>
-
-        <h4 class="section-label">More Options</h4>
-        <div class="more-links">
-            <a href="#">Payment History</a>
-            <a href="#">Plan History</a>
-            <a href="#">Account Details</a>
-        </div>
-    </main>
-
-    <nav class="bottom-nav">
-        <div class="nav-item active"><i class="fas fa-home"></i><span>Home</span></div>
-        <div class="nav-item"><i class="fas fa-rocket"></i><span>Plans</span></div>
-        <div class="nav-item"><i class="fas fa-headset"></i><span>Support</span></div>
-    </nav>
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('home-view')"><i class="fas fa-home"></i><span>Home</span></div>
+            <div class="nav-item"><i class="fas fa-rocket"></i><span>Plans</span></div>
+            <div class="nav-item" onclick="switchTab('support-view')"><i class="fas fa-user"></i><span>Support</span></div>
+        </nav>
+    </div>
 
     <script src="app.js"></script>
 </body>
