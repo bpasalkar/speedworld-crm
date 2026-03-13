@@ -1,76 +1,121 @@
-// CONFIGURATION
+/**
+ * SPEEDWORLD PRO - LOGIC ENGINE
+ * Handles: Tab Navigation, Renewal Blocking, and Troubleshooting Flow
+ */
+
+// 1. DATABASE CONFIGURATION (Replace with your actual keys)
 const SUPABASE_URL = 'https://your-project.supabase.co';
 const SUPABASE_KEY = 'your-anon-key';
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const USER_ID = 'SW-1052'; 
+const _supabase = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-const api = {
-    user: null,
-
-    async init() {
-        // Fetch User Data [II, V, XXIX]
-        const { data, error } = await _supabase.from('customers').select('*').eq('user_id', USER_ID).single();
-        if (data) {
-            this.user = data;
-            this.renderHome();
-        }
-    },
-
-    renderHome() {
-        document.getElementById('display-name').innerText = this.user.full_name;
-        document.getElementById('display-plan').innerText = this.user.current_plan;
-        document.getElementById('display-expiry').innerText = this.user.plan_expiry + " Days Left";
-        
-        // Handle Dues Logic [XXX, XXXII]
-        const duesBox = document.getElementById('dues-warning');
-        if (this.user.current_balance > 0) {
-            duesBox.classList.remove('hidden');
-            document.getElementById('display-dues').innerText = "₹" + this.user.current_balance;
-            document.getElementById('bill-amount').innerText = "₹" + this.user.current_balance;
-        } else {
-            duesBox.classList.add('hidden');
-        }
-    }
+// 2. APP STATE (Global variables)
+const CURRENT_USER_ID = 'SW-1052';
+let userData = {
+    full_name: "Rajesh Kumar",
+    user_id: "SW-1052",
+    current_plan: "500 Mbps Business",
+    plan_expiry: 14,
+    current_balance: 599, // Change to 0 to test "Unblocked" renewal
+    member_since: "Jan 2024"
 };
 
-// TAB SWITCHER
-function switchTab(viewId, el) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(viewId).classList.add('active');
+/**
+ * INITIALIZATION
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Speedworld App Initialized");
+    loadUserData();
+    switchTab('home-view'); // Default view
+});
+
+/**
+ * FEATURE: LOAD USER DATA (XXXIV)
+ */
+async function loadUserData() {
+    // If Supabase is connected, fetch real data
+    if (_supabase) {
+        const { data, error } = await _supabase
+            .from('customers')
+            .select('*')
+            .eq('user_id', CURRENT_USER_ID)
+            .single();
+        if (data) userData = data;
+    }
+
+    // Render data to the UI
+    document.getElementById('display-name').innerText = userData.full_name;
+    document.getElementById('display-id').innerText = userData.user_id;
+    document.getElementById('display-plan').innerText = userData.current_plan;
+    document.getElementById('display-expiry').innerText = userData.plan_expiry + " Days Left";
     
-    if(el) {
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
+    // Logic for Dues (XXX)
+    const duesBar = document.getElementById('dues-bar');
+    if (userData.current_balance > 0) {
+        duesBar.classList.remove('hidden');
+        document.getElementById('display-dues').innerText = "₹" + userData.current_balance;
+    } else {
+        duesBar.classList.add('hidden');
     }
 }
 
-// RENEWAL LOGIC [XXXII]
-function handleRenewalClick() {
-    if (api.user.current_balance > 0) {
-        alert("Action Required: Please clear your outstanding dues (₹" + api.user.current_balance + ") before renewing your plan.");
-        switchTab('account-view'); // Redirect to Billing
+/**
+ * FEATURE: TAB NAVIGATION (XXXVI)
+ */
+function switchTab(viewId, element) {
+    // Hide all views
+    document.querySelectorAll('.view').forEach(view => {
+        view.classList.remove('active');
+    });
+
+    // Show selected view
+    const targetView = document.getElementById(viewId);
+    if (targetView) targetView.classList.add('active');
+
+    // Update Bottom Nav active state
+    if (element) {
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        element.classList.add('active');
+    }
+
+    // Scroll to top
+    window.scrollTo(0, 0);
+}
+
+/**
+ * FEATURE: RENEWAL BLOCKING (XXX, XXXII)
+ */
+function handleRenew() {
+    if (userData.current_balance > 0) {
+        // Direct to Dues Payment [XXXII]
+        alert("RENEWAL BLOCKED: You have an outstanding balance of ₹" + userData.current_balance + ". Please clear your dues to continue.");
+        switchTab('billing-view');
     } else {
-        switchTab('plans-view'); // Proceed to Change Plan
+        // Proceed to Renewal Section [XXXVII]
+        switchTab('plans-view');
+        alert("Opening Plan Selection...");
     }
 }
 
-// TROUBLESHOOTING LOGIC [XL]
-function runTroubleshoot() {
-    const cat = document.getElementById('complaint-category').value;
-    const tsArea = document.getElementById('troubleshoot-area');
+/**
+ * FEATURE: TROUBLESHOOTING QUESTIONNAIRE (XL)
+ */
+function showTroubleshoot() {
+    const category = document.getElementById('issue-category').value;
+    const tsArea = document.getElementById('ts-area');
     
-    if (cat === "No Internet") {
-        tsArea.innerHTML = `
-            <div class="ts-box">
-                <p><strong>Quick Check:</strong> Is the 'LOS' light on your router blinking Red?</p>
-                <button onclick="alert('Checking line...')">Yes</button>
-                <button onclick="alert('Restart your router and wait 2 mins.')">No</button>
-            </div>`;
-        tsArea.classList.remove('hidden');
-    } else {
+    if (!category) {
         tsArea.classList.add('hidden');
+        return;
     }
-}
 
-// Start
-api.init();
+    tsArea.classList.remove('hidden');
+    
+    if (category === 'no-internet') {
+        tsArea.innerHTML = `
+            <div class="ts-card">
+                <p><strong>Step 1:</strong> Is your router's <strong>LOS</strong> light blinking Red?</p>
+                <div class="ts-btns">
+                    <button onclick="tsResponse('line-issue')">Yes, it's Red</button>
+                    <button onclick="tsResponse('restart-guide')">No
