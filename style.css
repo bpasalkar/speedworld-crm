@@ -1,115 +1,63 @@
 :root {
     --primary: #004a7c;
-    --secondary: #008080;
     --accent: #ff4b2b;
-    --bg: #f8fafe;
-    --card: #ffffff;
-    --text: #2d3436;
-    --shadow: 0 10px 30px rgba(0,0,0,0.08);
+    --bg-light: #f5f7fa;
+    --white: #ffffff;
 }
 
 body { 
-    font-family: 'Inter', system-ui, sans-serif; 
-    background: var(--bg); 
-    margin: 0; 
-    padding-bottom: 100px; /* Space for Bottom Nav */
-    color: var(--text);
+    margin: 0; font-family: 'Segoe UI', sans-serif; 
+    background-color: var(--bg-light); color: #333;
+    padding-bottom: 100px; /* Space for bottom nav */
 }
 
-/* 1. App Header with Glass Effect */
-.app-header {
-    background: rgba(0, 74, 124, 0.95);
-    backdrop-filter: blur(10px);
-    color: white;
-    padding: 20px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 0 0 20px 20px;
+/* Glassmorphism Header */
+.main-header {
+    background: var(--primary); color: white;
+    padding: 15px 20px; display: flex; justify-content: space-between;
+    align-items: center; position: sticky; top: 0; z-index: 100;
+}
+.logo { font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+
+/* Notice Banner */
+.alert-banner {
+    background: #fff3e0; color: #e65100; padding: 10px;
+    font-size: 13px; font-weight: 600; display: flex; align-items: center;
 }
 
-/* 2. Modern Notice Ticker */
-.notice-bar {
-    background: #fff3cd;
-    color: #856404;
-    padding: 12px;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 15px;
-    border-radius: 12px;
-    border: 1px solid #ffeeba;
-}
-
-/* 3. High-Impact Offer Cards */
-.promo-slider {
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    padding: 10px 20px;
+/* Horizontal Offer Cards */
+.horizontal-scroll {
+    display: flex; overflow-x: auto; padding: 20px; gap: 15px;
     scrollbar-width: none;
 }
 .promo-card {
-    min-width: 280px;
-    height: 150px;
-    border-radius: 20px;
-    padding: 20px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    box-shadow: var(--shadow);
+    min-width: 260px; padding: 20px; border-radius: 20px; color: white;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
-.grad-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.grad-2 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #333; }
+.orange-glow { background: linear-gradient(135deg, #ff8c00, #ff4b2b); }
+.blue-glow { background: linear-gradient(135deg, #2193b0, #6dd5ed); }
 
-/* 4. Service Icons Grid */
-.service-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    padding: 20px;
+/* Inquiry Form */
+.glass-card {
+    background: white; margin: 0 20px; padding: 25px;
+    border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
-.service-item {
-    background: white;
-    padding: 15px 5px;
-    border-radius: 15px;
-    text-align: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+.input-group input, .input-group select {
+    width: 100%; padding: 12px; margin-bottom: 12px;
+    border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box;
 }
-.service-item i {
-    font-size: 1.5rem;
-    color: var(--primary);
-    margin-bottom: 8px;
-    display: block;
+.btn-action {
+    width: 100%; background: var(--primary); color: white;
+    border: none; padding: 15px; border-radius: 12px; font-weight: bold;
 }
 
-/* 5. Floating Bottom Navigation */
-.bottom-nav {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
-    background: white;
-    height: 70px;
-    border-radius: 25px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-    z-index: 1000;
+/* Floating Bottom Nav */
+.bottom-tab-bar {
+    position: fixed; bottom: 15px; left: 15px; right: 15px;
+    height: 70px; background: white; border-radius: 25px;
+    display: flex; justify-content: space-around; align-items: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
-.nav-btn {
-    color: #b2bec3;
-    text-align: center;
-    transition: 0.3s;
-}
-.nav-btn.active { color: var(--primary); transform: translateY(-5px); }
-.nav-btn i { font-size: 1.4rem; }
-.nav-btn span { display: block; font-size: 0.7rem; margin-top: 4px; }
+.tab-item { color: #888; text-align: center; font-size: 11px; }
+.tab-item.active { color: var(--primary); font-weight: bold; }
+.tab-item i { font-size: 20px; display: block; margin-bottom: 4px; }
