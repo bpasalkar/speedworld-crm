@@ -3,84 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speedworld CRM - Pro</title>
+    <title>Speedworld Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --blue: #004a7c; --teal: #008080; --light: #f0f2f5; --red: #d32f2f; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: auto; }
+        :root { --blue: #004a7c; --teal: #008080; --light: #f0f2f5; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding-bottom: 50px; }
+        .app-header { background: var(--blue); color: white; padding: 40px 20px; border-radius: 0 0 30px 30px; text-align: center; }
+        .container { max-width: 450px; margin: -50px auto 0; padding: 0 15px; }
+        .card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        /* Card & Header Styles */
-        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid var(--teal); }
-        .header { background: var(--blue); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
+        /* Usage Progress */
+        .progress-bar { background: #eee; height: 8px; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .progress-fill { background: var(--teal); height: 100%; width: 50%; transition: 1s; }
         
-        /* Action Grid */
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .action-card { background: white; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; border: 1px solid #ddd; transition: 0.3s; }
-        .action-card:hover { border-color: var(--teal); background: #f9f9f9; }
-        .action-card i { font-size: 24px; color: var(--blue); margin-bottom: 8px; }
+        /* Interactive Grid */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .action-item { background: white; padding: 15px 5px; border-radius: 15px; text-align: center; cursor: pointer; border: 1px solid #eee; font-size: 12px; font-weight: bold; color: var(--blue); }
+        .action-item i { font-size: 20px; margin-bottom: 8px; display: block; color: var(--teal); }
         
-        /* Table Styles */
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { text-align: left; color: #666; padding: 8px; border-bottom: 2px solid #eee; }
-        td { padding: 10px 8px; border-bottom: 1px solid #eee; }
+        /* Hidden Sections */
+        .drawer { display: none; margin-top: 10px; border-top: 1px solid #eee; padding-top: 15px; }
+        select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 10px; font-family: inherit; }
+        .btn-main { background: var(--blue); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
         
-        /* Status Badges */
-        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
-        .open { background: #fff3e0; color: #ef6c00; }
-        .inprogress { background: #e3f2fd; color: #1565c0; }
-
-        /* Dynamic Payment Button */
-        #pay-btn { background: var(--red); color: white; border: none; padding: 12px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; display: none; margin-top: 15px; }
+        #pay-now { background: #d32f2f; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h2 style="margin:0">Speedworld CRM</h2>
-        <small id="user-greet">Connected to Live Database</small>
-    </div>
+<div class="app-header">
+    <h2 style="margin:0">Speedworld</h2>
+    <p id="user-name" style="opacity:0.8">Loading...</p>
+</div>
 
+<div class="container">
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 id="cust-name" style="margin:0">Loading...</h3>
-            <span id="cust-id" style="color:#888; font-size:12px;"></span>
+            <h3 id="cur-plan" style="margin:0; color:var(--blue);">---</h3>
+            <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">Active</span>
         </div>
-        <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
-        <p><strong>Plan:</strong> <span id="cust-plan">--</span></p>
-        <p style="margin-bottom:0"><strong>Balance:</strong> <span id="cust-bal" style="color:var(--red); font-weight:bold;">₹0</span></p>
-        <button id="pay-btn" onclick="alert('Redirecting to Payment Gateway...')">PAY NOW</button>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#666;">
+            <span>Plan Validity</span>
+            <span>15 days left</span>
+        </div>
+        <div style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
+            <small>Due Amount</small>
+            <h2 id="balance-amt" style="margin:5px 0; color:#d32f2f;">₹0</h2>
+            <button id="pay-now" onclick="alert('Opening Payment Gateway...')">PAY NOW</button>
+        </div>
     </div>
 
     <div class="action-grid">
-        <div class="action-card" onclick="requestCollection()">
-            <i class="fa-solid fa-hand-holding-dollar"></i><br>
-            <strong>Request Cash Collection</strong>
+        <div class="action-item" onclick="toggleDrawer('support-drawer')">
+            <i class="fas fa-headset"></i>Support
         </div>
-        <div class="action-card" onclick="toggleUpgrade()">
-            <i class="fa-solid fa-rocket"></i><br>
-            <strong>Upgrade Plan</strong>
+        <div class="action-item" onclick="toggleDrawer('plan-drawer')">
+            <i class="fas fa-rocket"></i>Upgrade
+        </div>
+        <div class="action-item" onclick="requestCollection()">
+            <i class="fas fa-motorcycle"></i>Cash Pick
         </div>
     </div>
 
-    <div id="upgrade-section" class="card" style="display:none; border-left-color: var(--blue);">
-        <h3>Choose New Plan</h3>
-        <select id="plan-select" style="width:100%; padding:10px; margin-bottom:10px;">
-            <option value="50 Mbps Starter">50 Mbps Starter - ₹499</option>
-            <option value="100 Mbps Unlimited">100 Mbps Unlimited - ₹699</option>
-            <option value="200 Mbps Premium">200 Mbps Premium - ₹999</option>
+    <div id="plan-drawer" class="card drawer">
+        <h4>Select New Plan</h4>
+        <select id="new-plan-list">
+            <option value="100 Mbps Unlimited">100 Mbps Unlimited - ₹599</option>
+            <option value="200 Mbps Superfast">200 Mbps Superfast - ₹899</option>
+            <option value="500 Mbps Gaming">500 Mbps Gaming - ₹1499</option>
         </select>
-        <button onclick="updatePlan()" style="background:var(--teal); color:white; border:none; padding:10px; width:100%; border-radius:5px;">Confirm Upgrade</button>
+        <button class="btn-main" onclick="changePlan()">Confirm Change</button>
     </div>
 
-    <div class="card">
-        <h3>Active Tickets</h3>
-        <table id="ticket-table">
-            <thead><tr><th>ID</th><th>Category</th><th>Status</th></tr></thead>
-            <tbody id="ticket-body"></tbody>
-        </table>
+    <div id="support-drawer" class="card drawer">
+        <h4>Raise Complaint</h4>
+        <textarea id="issue-desc" placeholder="Tell us what's wrong..."></textarea>
+        <button class="btn-main" onclick="submitTicket()">Submit Ticket</button>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+        <h4 style="margin-top:0"><i class="fas fa-ticket-alt"></i> Active Requests</h4>
+        <div id="ticket-history" style="font-size:13px;"></div>
     </div>
 </div>
 
@@ -88,57 +93,51 @@
     const SUPABASE_URL = 'https://xornzelybefhpcpfrmhl.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_UZD-UWg94FObGgah7XbyUA_64-1uj9M';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const USER_ID = 'SW-1052'; // Locked for your demo user
 
-    async function loadApp() {
-        const { data: user } = await _supabase.from('customers').select('*').eq('user_id', 'SW-1052').single();
+    async function loadData() {
+        const { data: user } = await _supabase.from('customers').select('*').eq('user_id', USER_ID).single();
         if (user) {
-            document.getElementById('cust-name').innerText = user.full_name;
-            document.getElementById('cust-id').innerText = user.user_id;
-            document.getElementById('cust-plan').innerText = user.current_plan;
-            document.getElementById('cust-bal').innerText = "₹" + user.current_balance;
+            document.getElementById('user-name').innerText = "Hello, " + user.full_name;
+            document.getElementById('cur-plan').innerText = user.current_plan;
+            document.getElementById('balance-amt').innerText = "₹" + user.current_balance;
             
-            if(user.current_balance > 0) document.getElementById('pay-btn').style.display = 'block';
+            // Toggle Pay button
+            document.getElementById('pay-now').style.display = user.current_balance > 0 ? 'block' : 'none';
 
-            const { data: tickets } = await _supabase.from('tickets').select('*').eq('customer_id', user.user_id);
-            document.getElementById('ticket-body').innerHTML = tickets.map(t => `
-                <tr>
-                    <td>${t.ticket_number}</td>
-                    <td>${t.category}</td>
-                    <td><span class="badge ${t.ticket_status.toLowerCase().replace(' ', '')}">${t.ticket_status}</span></td>
-                </tr>
-            `).join('');
+            // Load Tickets
+            const { data: tickets } = await _supabase.from('tickets').select('*').eq('customer_id', USER_ID);
+            document.getElementById('ticket-history').innerHTML = tickets.map(t => 
+                `<div style="padding:10px 0; border-bottom:1px solid #fafafa;">
+                    <strong>${t.ticket_number}</strong> - <span style="color:orange">${t.ticket_status}</span><br>
+                    <small style="color:#888">${t.category}: ${t.problem_desc}</small>
+                </div>`).join('');
         }
+    }
+
+    function toggleDrawer(id) {
+        const d = document.getElementById(id);
+        d.style.display = (d.style.display === 'block') ? 'none' : 'block';
+    }
+
+    async function changePlan() {
+        const p = document.getElementById('new-plan-list').value;
+        const { error } = await _supabase.from('customers').update({ current_plan: p }).eq('user_id', USER_ID);
+        if (!error) { alert("Plan updated!"); loadData(); toggleDrawer('plan-drawer'); }
     }
 
     async function requestCollection() {
-        const { error } = await _supabase.from('tickets').insert([{ 
-            ticket_number: "PAY-" + Math.floor(1000 + Math.random() * 9000),
-            customer_id: 'SW-1052',
+        const { error } = await _supabase.from('tickets').insert([{
+            ticket_number: 'PAY-' + Math.floor(1000+Math.random()*9000),
+            customer_id: USER_ID,
             category: 'Cash Collection',
-            problem_desc: 'User requested home visit for cash payment.',
+            problem_desc: 'User requested a home visit for cash payment.',
             ticket_status: 'Open'
         }]);
-        if (!error) alert("Collection request sent! An agent will call you.");
-        loadApp();
+        if (!error) { alert("Agent requested! They will call you shortly."); loadData(); }
     }
 
-    function toggleUpgrade() {
-        const div = document.getElementById('upgrade-section');
-        div.style.display = div.style.display === 'none' ? 'block' : 'none';
-    }
-
-    async function updatePlan() {
-        const newPlan = document.getElementById('plan-select').value;
-        const { error } = await _supabase.from('customers').update({ current_plan: newPlan }).eq('user_id', 'SW-1052');
-        if (!error) {
-            alert("Plan upgraded successfully!");
-            loadApp();
-            toggleUpgrade();
-        }
-    }
-
-    loadApp();
+    loadData();
 </script>
-
 </body>
 </html>
