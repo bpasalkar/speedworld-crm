@@ -16,14 +16,17 @@
         .value { color: var(--blue); font-weight: bold; }
         .balance-red { color: #d32f2f; font-size: 1.2em; font-weight: bold;}
         
-        /* Table Styling */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: #eee; text-align: left; padding: 10px; color: #666; font-size: 0.9em; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9em; }
-        .status-open { color: orange; font-weight: bold; }
+        th { background: #eee; text-align: left; padding: 10px; color: #666; font-size: 0.85em; text-transform: uppercase; }
+        td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 0.9em; }
         
-        .loading { text-align: center; padding: 50px; font-style: italic; color: #888; }
-        button:hover { opacity: 0.9; }
+        /* Status Badge Colors */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+        .open { background: #fff3e0; color: #ef6c00; } /* Orange for Open */
+        .progress { background: #e3f2fd; color: #1565c0; } /* Blue for In Progress */
+        .closed { background: #e8f5e9; color: #2e7d32; } /* Green for Closed */
+
+        button:hover { opacity: 0.9; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -34,62 +37,45 @@
         <div id="status-tag">Live Database</div>
     </div>
 
-    <div id="loading-view" class="loading">Connecting to Supabase...</div>
-
-    <div id="main-content" style="display:none;">
-        
+    <div id="main-content">
         <div class="card">
             <h3>Customer Overview</h3>
-            <div class="data-row"><span class="label">Name:</span> <span class="value" id="name"></span></div>
+            <div class="data-row"><span class="label">Name:</span> <span class="value" id="name">Loading...</span></div>
             <div class="data-row"><span class="label">User ID:</span> <span class="value" id="uid"></span></div>
-            <div class="data-row"><span class="label">Current Plan:</span> <span class="value" id="plan"></span></div>
-            <div class="data-row"><span class="label">Status:</span> <span class="value" id="status"></span></div>
-            <div class="data-row" style="border:none;">
-                <span class="label">Amount Due:</span> 
-                <span class="balance-red" id="balance"></span>
-            </div>
+            <div class="data-row"><span class="label">Plan:</span> <span class="value" id="plan"></span></div>
+            <div class="data-row" style="border:none;"><span class="label">Amount Due:</span> <span class="balance-red" id="balance"></span></div>
         </div>
 
         <div class="card">
             <h3>Recent Payments</h3>
             <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Amount</th>
-                        <th>Method</th>
-                        <th>Invoice</th>
-                    </tr>
-                </thead>
-                <tbody id="payment-list">
-                    </tbody>
+                <thead><tr><th>Date</th><th>Amount</th><th>Method</th></tr></thead>
+                <tbody id="payment-list"></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Your Tickets</h3>
+            <table>
+                <thead><tr><th>ID</th><th>Category</th><th>Status</th></tr></thead>
+                <tbody id="ticket-list"></tbody>
             </table>
         </div>
 
         <div class="card">
             <h3>Raise a Complaint</h3>
             <form id="complaint-form">
-                <div class="data-row">
-                    <span class="label">Category:</span>
-                    <select id="category" style="padding: 5px; width: 60%;" required>
-                        <option value="">Select a Category</option>
-                        <option value="No Internet">No Internet</option>
-                        <option value="Slow Speed">Slow Speed</option>
-                        <option value="Billing">Billing Issue</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="data-row" style="flex-direction: column; align-items: flex-start;">
-                    <span class="label">Problem Description:</span>
-                    <textarea id="description" rows="3" style="width: 100%; margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="Details..." required></textarea>
-                </div>
-                <button type="submit" id="submit-btn" style="background: #004a7c; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: bold;">
-                    Submit Complaint
-                </button>
+                <select id="category" style="width: 100%; padding: 10px; margin-bottom: 10px;" required>
+                    <option value="">Select Category</option>
+                    <option value="No Internet">No Internet</option>
+                    <option value="Slow Speed">Slow Speed</option>
+                    <option value="Billing">Billing Issue</option>
+                </select>
+                <textarea id="description" rows="3" style="width: 100%; padding: 10px; box-sizing: border-box;" placeholder="Describe issue..." required></textarea>
+                <button type="submit" id="submit-btn" style="background: var(--blue); color: white; border: none; padding: 12px; border-radius: 5px; width: 100%; margin-top: 10px; font-weight: bold;">Submit Complaint</button>
             </form>
-            <div id="form-feedback" style="margin-top: 10px; font-weight: bold; text-align: center;"></div>
+            <div id="form-feedback" style="margin-top: 10px; text-align: center;"></div>
         </div>
-
     </div>
 </div>
 
@@ -98,59 +84,50 @@
     const SUPABASE_KEY = 'sb_publishable_UZD-UWg94FObGgah7XbyUA_64-1uj9M';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function initDashboard() {
-        // 1. Load Customer
-        const { data: customer } = await _supabase.from('customers').select('*').limit(1).single();
-        
-        if (customer) {
-            document.getElementById('name').innerText = customer.full_name;
-            document.getElementById('uid').innerText = customer.user_id;
-            document.getElementById('plan').innerText = customer.current_plan;
-            document.getElementById('status').innerText = customer.account_status;
-            document.getElementById('balance').innerText = "₹" + customer.current_balance;
+    async function loadDashboard() {
+        const { data: user } = await _supabase.from('customers').select('*').limit(1).single();
+        if (user) {
+            document.getElementById('name').innerText = user.full_name;
+            document.getElementById('uid').innerText = user.user_id;
+            document.getElementById('plan').innerText = user.current_plan;
+            document.getElementById('balance').innerText = "₹" + user.current_balance;
 
-            // 2. Load Payments for this customer
-            const { data: payments } = await _supabase.from('payments').select('*').eq('customer_id', customer.user_id);
-            
-            if (payments) {
-                let html = '';
-                payments.forEach(p => {
-                    html += `<tr>
-                        <td>${p.payment_date}</td>
-                        <td>₹${p.amount_paid}</td>
-                        <td>${p.pay_method}</td>
-                        <td><a href="${p.invoice_link}" target="_blank" style="color:var(--teal);">View</a></td>
-                    </tr>`;
-                });
-                document.getElementById('payment-list').innerHTML = html;
-            }
+            // Load Payments
+            const { data: pays } = await _supabase.from('payments').select('*').eq('customer_id', user.user_id);
+            document.getElementById('payment-list').innerHTML = pays.map(p => 
+                `<tr><td>${p.payment_date}</td><td>₹${p.amount_paid}</td><td>${p.pay_method}</td></tr>`).join('');
 
-            document.getElementById('loading-view').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
+            // Load Tickets
+            refreshTickets(user.user_id);
         }
     }
 
-    // Handle Form Submission
+    async function refreshTickets(uid) {
+        const { data: tickets } = await _supabase.from('tickets').select('*').eq('customer_id', uid);
+        document.getElementById('ticket-list').innerHTML = tickets.map(t => {
+            let s = t.ticket_status.toLowerCase().replace(" ", "");
+            return `<tr><td>${t.ticket_number}</td><td>${t.category}</td><td><span class="badge ${s}">${t.ticket_status}</span></td></tr>`;
+        }).join('');
+    }
+
     document.getElementById('complaint-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const feedback = document.getElementById('form-feedback');
+        const uid = document.getElementById('uid').innerText;
         const { error } = await _supabase.from('tickets').insert([{ 
             ticket_number: "CR-" + Math.floor(Math.random()*9000),
-            customer_id: document.getElementById('uid').innerText,
+            customer_id: uid,
             category: document.getElementById('category').value,
             problem_desc: document.getElementById('description').value,
             ticket_status: 'Open'
         }]);
-
         if (!error) {
-            feedback.style.color = "green";
-            feedback.innerText = "Ticket Raised Successfully!";
+            document.getElementById('form-feedback').innerText = "Ticket Added!";
             document.getElementById('complaint-form').reset();
+            refreshTickets(uid); // Update list immediately!
         }
     });
 
-    initDashboard();
+    loadDashboard();
 </script>
-
 </body>
 </html>
