@@ -3,141 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speedworld Pro</title>
+    <title>Speedworld CRM - Pro Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { --blue: #004a7c; --teal: #008080; --light: #f0f2f5; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding-bottom: 50px; }
+        /* ALL CSS STYLES ARE INCLUDED HERE */
+        :root { --blue: #004a7c; --teal: #008080; --light: #f0f2f5; --white: #ffffff; --red: #d32f2f; --whatsapp: #25D366; }
+        
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding-bottom: 50px; color: #333; }
+        
+        /* Header Section */
         .app-header { background: var(--blue); color: white; padding: 40px 20px; border-radius: 0 0 30px 30px; text-align: center; }
         .container { max-width: 450px; margin: -50px auto 0; padding: 0 15px; }
-        .card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        /* Usage Progress */
-        .progress-bar { background: #eee; height: 8px; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .progress-fill { background: var(--teal); height: 100%; width: 50%; transition: 1s; }
+        /* Universal Card Style */
+        .card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid var(--teal); }
         
-        /* Interactive Grid */
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .action-item { background: white; padding: 15px 5px; border-radius: 15px; text-align: center; cursor: pointer; border: 1px solid #eee; font-size: 12px; font-weight: bold; color: var(--blue); }
-        .action-item i { font-size: 20px; margin-bottom: 8px; display: block; color: var(--teal); }
+        /* Progress Bar */
+        .progress-bar { background: #eee; height: 10px; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .progress-fill { background: var(--teal); height: 100%; width: 65%; transition: 1s; }
         
-        /* Hidden Sections */
-        .drawer { display: none; margin-top: 10px; border-top: 1px solid #eee; padding-top: 15px; }
-        select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 10px; font-family: inherit; }
+        /* Action Grid */
+        .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .action-card { background: white; padding: 18px 10px; border-radius: 15px; text-align: center; cursor: pointer; border: 1px solid #eee; transition: 0.2s; }
+        .action-card i { font-size: 24px; margin-bottom: 10px; display: block; color: var(--blue); }
+        .action-card:active { transform: scale(0.95); background: #f9f9f9; }
+        
+        /* Drawers (Hidden Sections) */
+        .drawer { display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
+        select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 10px; font-size: 14px; box-sizing: border-box; }
+        
+        /* Buttons */
         .btn-main { background: var(--blue); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
+        #pay-now { background: var(--red); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; display: none; }
         
-        #pay-now { background: #d32f2f; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        /* Status Badges */
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .open { background: #fff3e0; color: #ef6c00; }
+        .inprogress { background: #e3f2fd; color: #1565c0; }
+        
+        /* History List */
+        .history-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #fafafa; font-size: 13px; }
     </style>
 </head>
 <body>
 
 <div class="app-header">
-    <h2 style="margin:0">Speedworld</h2>
-    <p id="user-name" style="opacity:0.8">Loading...</p>
+    <h2 style="margin:0">Speedworld CRM</h2>
+    <p id="user-name" style="opacity:0.8">Connected</p>
 </div>
 
 <div class="container">
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 id="cur-plan" style="margin:0; color:var(--blue);">---</h3>
-            <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">Active</span>
+            <h3 id="cur-plan" style="margin:0; color:var(--blue);">Loading Plan...</h3>
+            <span class="badge" style="background:#e8f5e9; color:#2e7d32;">Active</span>
         </div>
         <div class="progress-bar"><div class="progress-fill"></div></div>
         <div style="display:flex; justify-content:space-between; font-size:12px; color:#666;">
-            <span>Plan Validity</span>
-            <span>15 days left</span>
+            <span>Usage Validity</span>
+            <span>18 days left</span>
         </div>
+        
         <div style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
-            <small>Due Amount</small>
-            <h2 id="balance-amt" style="margin:5px 0; color:#d32f2f;">₹0</h2>
-            <button id="pay-now" onclick="alert('Opening Payment Gateway...')">PAY NOW</button>
+            <small style="color:#888;">Current Amount Due</small>
+            <h2 id="balance-amt" style="margin:5px 0; color:var(--red);">₹0</h2>
+            <button id="pay-now" onclick="alert('Proceeding to Secure Gateway...')">PAY NOW</button>
         </div>
     </div>
 
     <div class="action-grid">
-        <div class="action-item" onclick="toggleDrawer('support-drawer')">
-            <i class="fas fa-headset"></i>Support
+        <div class="action-card" onclick="toggleDrawer('support-drawer')">
+            <i class="fas fa-headset"></i><strong>Support</strong>
         </div>
-        <div class="action-item" onclick="toggleDrawer('plan-drawer')">
-            <i class="fas fa-rocket"></i>Upgrade
+        <div class="action-card" onclick="toggleDrawer('plan-drawer')">
+            <i class="fas fa-rocket"></i><strong>Upgrade</strong>
         </div>
-        <div class="action-item" onclick="requestCollection()">
-            <i class="fas fa-motorcycle"></i>Cash Pick
+        <div class="action-card" onclick="requestCollection()">
+            <i class="fas fa-motorcycle"></i><strong>Cash Pick</strong>
+        </div>
+        <div class="action-card" onclick="window.open('https://wa.me/91XXXXXXXXXX?text=Help!')" style="border-bottom: 3px solid var(--whatsapp);">
+            <i class="fab fa-whatsapp" style="color: var(--whatsapp);"></i><strong>WhatsApp</strong>
         </div>
     </div>
 
     <div id="plan-drawer" class="card drawer">
-        <h4>Select New Plan</h4>
+        <h4 style="margin-top:0;">Upgrade Your Plan</h4>
         <select id="new-plan-list">
-            <option value="100 Mbps Unlimited">100 Mbps Unlimited - ₹599</option>
-            <option value="200 Mbps Superfast">200 Mbps Superfast - ₹899</option>
+            <option value="100 Mbps Unlimited">100 Mbps Unlimited - ₹699</option>
+            <option value="200 Mbps Premium">200 Mbps Premium - ₹999</option>
             <option value="500 Mbps Gaming">500 Mbps Gaming - ₹1499</option>
         </select>
-        <button class="btn-main" onclick="changePlan()">Confirm Change</button>
+        <button class="btn-main" onclick="changePlan()">Confirm Upgrade</button>
     </div>
 
     <div id="support-drawer" class="card drawer">
-        <h4>Raise Complaint</h4>
-        <textarea id="issue-desc" placeholder="Tell us what's wrong..."></textarea>
+        <h4 style="margin-top:0;">Raise a Complaint</h4>
+        <textarea id="issue-desc" rows="3" placeholder="Describe your technical issue..."></textarea>
         <button class="btn-main" onclick="submitTicket()">Submit Ticket</button>
     </div>
 
-    <div class="card" style="margin-top:20px;">
-        <h4 style="margin-top:0"><i class="fas fa-ticket-alt"></i> Active Requests</h4>
-        <div id="ticket-history" style="font-size:13px;"></div>
+    <div class="card">
+        <h4 style="margin-top:0;"><i class="fas fa-ticket-alt" style="margin-right:8px;"></i> Recent Activities</h4>
+        <div id="activity-history"></div>
     </div>
 </div>
 
 <script>
+    // DATABASE CONFIGURATION
     const SUPABASE_URL = 'https://xornzelybefhpcpfrmhl.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_UZD-UWg94FObGgah7XbyUA_64-1uj9M';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const USER_ID = 'SW-1052'; // Locked for your demo user
+    const USER_ID = 'SW-1052'; // The ID from your uploaded CSV
 
-    async function loadData() {
+    async function loadDashboard() {
+        // Fetch User Info
         const { data: user } = await _supabase.from('customers').select('*').eq('user_id', USER_ID).single();
         if (user) {
-            document.getElementById('user-name').innerText = "Hello, " + user.full_name;
+            document.getElementById('user-name').innerText = "Welcome, " + user.full_name;
             document.getElementById('cur-plan').innerText = user.current_plan;
             document.getElementById('balance-amt').innerText = "₹" + user.current_balance;
             
-            // Toggle Pay button
+            // Show Pay button only if balance > 0
             document.getElementById('pay-now').style.display = user.current_balance > 0 ? 'block' : 'none';
 
-            // Load Tickets
-            const { data: tickets } = await _supabase.from('tickets').select('*').eq('customer_id', USER_ID);
-            document.getElementById('ticket-history').innerHTML = tickets.map(t => 
-                `<div style="padding:10px 0; border-bottom:1px solid #fafafa;">
-                    <strong>${t.ticket_number}</strong> - <span style="color:orange">${t.ticket_status}</span><br>
-                    <small style="color:#888">${t.category}: ${t.problem_desc}</small>
-                </div>`).join('');
+            // Fetch Tickets
+            const { data: tickets } = await _supabase.from('tickets').select('*').eq('customer_id', USER_ID).order('id', { ascending: false });
+            
+            let historyHTML = '';
+            if (tickets) {
+                tickets.forEach(t => {
+                    const statusClass = t.ticket_status.toLowerCase().replace(' ', '');
+                    historyHTML += `
+                        <div class="history-item">
+                            <span><strong>${t.ticket_number}</strong><br><small>${t.category}</small></span>
+                            <span class="badge ${statusClass}">${t.ticket_status}</span>
+                        </div>`;
+                });
+            }
+            document.getElementById('activity-history').innerHTML = historyHTML || '<p style="color:#888;">No recent activity.</p>';
         }
     }
 
+    // TOGGLE DRAWERS
     function toggleDrawer(id) {
-        const d = document.getElementById(id);
-        d.style.display = (d.style.display === 'block') ? 'none' : 'block';
+        const drawers = ['plan-drawer', 'support-drawer'];
+        drawers.forEach(d => {
+            if(d === id) {
+                const el = document.getElementById(d);
+                el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+            } else {
+                document.getElementById(d).style.display = 'none';
+            }
+        });
     }
 
+    // ACTION: CHANGE PLAN
     async function changePlan() {
-        const p = document.getElementById('new-plan-list').value;
-        const { error } = await _supabase.from('customers').update({ current_plan: p }).eq('user_id', USER_ID);
-        if (!error) { alert("Plan updated!"); loadData(); toggleDrawer('plan-drawer'); }
-    }
-
-    async function requestCollection() {
-        const { error } = await _supabase.from('tickets').insert([{
-            ticket_number: 'PAY-' + Math.floor(1000+Math.random()*9000),
-            customer_id: USER_ID,
-            category: 'Cash Collection',
-            problem_desc: 'User requested a home visit for cash payment.',
-            ticket_status: 'Open'
-        }]);
-        if (!error) { alert("Agent requested! They will call you shortly."); loadData(); }
-    }
-
-    loadData();
-</script>
-</body>
-</html>
+        const plan = document.getElementById('new-plan-list').value;
+        const { error } = await _supabase.from('customers').update({ current_plan: plan }).eq('user
