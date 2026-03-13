@@ -1,47 +1,76 @@
-const CURRENT_USER_ID = 'SW-1052';
+// CONFIGURATION
+const SUPABASE_URL = 'https://your-project.supabase.co';
+const SUPABASE_KEY = 'your-anon-key';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const USER_ID = 'SW-1052'; 
 
 const api = {
-    userData: null,
+    user: null,
 
     async init() {
-        const { data, error } = await _supabase.from('customers').select('*').eq('user_id', CURRENT_USER_ID).single();
+        // Fetch User Data [II, V, XXIX]
+        const { data, error } = await _supabase.from('customers').select('*').eq('user_id', USER_ID).single();
         if (data) {
-            this.userData = data;
+            this.user = data;
             this.renderHome();
         }
     },
 
     renderHome() {
-        document.getElementById('user-name').innerText = this.userData.full_name;
-        document.getElementById('plan-name').innerText = this.userData.current_plan;
+        document.getElementById('display-name').innerText = this.user.full_name;
+        document.getElementById('display-plan').innerText = this.user.current_plan;
+        document.getElementById('display-expiry').innerText = this.user.plan_expiry + " Days Left";
         
-        // Check for Dues [XXX]
-        if (this.userData.current_balance > 0) {
-            const duesBox = document.getElementById('dues-section');
+        // Handle Dues Logic [XXX, XXXII]
+        const duesBox = document.getElementById('dues-warning');
+        if (this.user.current_balance > 0) {
             duesBox.classList.remove('hidden');
-            document.getElementById('due-amount').innerText = "₹" + this.userData.current_balance;
-        }
-    },
-
-    // Renewal Logic [XXXII]
-    openRenewal() {
-        if (this.userData.current_balance > 0) {
-            alert("Renewal Blocked: Please clear your outstanding dues of ₹" + this.userData.current_balance + " first.");
-            this.openBilling(); // Redirect to payment
+            document.getElementById('display-dues').innerText = "₹" + this.user.current_balance;
+            document.getElementById('bill-amount').innerText = "₹" + this.user.current_balance;
         } else {
-            // Proceed to Renewal Screen [XXXVII]
-            console.log("Opening Renewal Screen...");
+            duesBox.classList.add('hidden');
         }
-    },
-
-    // Troubleshooting Questionnaire Placeholder [XL]
-    startTroubleshooting(category) {
-        console.log("Loading questions for:", category);
-        // Step 1: "Is your router power light ON?"
-        // Step 2: "Have you restarted the device?"
-        // If unresolved -> proceed to submitTicket()
     }
 };
 
-// Start the app
+// TAB SWITCHER
+function switchTab(viewId, el) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(viewId).classList.add('active');
+    
+    if(el) {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+    }
+}
+
+// RENEWAL LOGIC [XXXII]
+function handleRenewalClick() {
+    if (api.user.current_balance > 0) {
+        alert("Action Required: Please clear your outstanding dues (₹" + api.user.current_balance + ") before renewing your plan.");
+        switchTab('account-view'); // Redirect to Billing
+    } else {
+        switchTab('plans-view'); // Proceed to Change Plan
+    }
+}
+
+// TROUBLESHOOTING LOGIC [XL]
+function runTroubleshoot() {
+    const cat = document.getElementById('complaint-category').value;
+    const tsArea = document.getElementById('troubleshoot-area');
+    
+    if (cat === "No Internet") {
+        tsArea.innerHTML = `
+            <div class="ts-box">
+                <p><strong>Quick Check:</strong> Is the 'LOS' light on your router blinking Red?</p>
+                <button onclick="alert('Checking line...')">Yes</button>
+                <button onclick="alert('Restart your router and wait 2 mins.')">No</button>
+            </div>`;
+        tsArea.classList.remove('hidden');
+    } else {
+        tsArea.classList.add('hidden');
+    }
+}
+
+// Start
 api.init();
