@@ -15,6 +15,13 @@
         .label { font-weight: bold; color: #666; }
         .value { color: var(--blue); font-weight: bold; }
         .balance-red { color: #d32f2f; font-size: 1.2em; font-weight: bold;}
+        
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #eee; text-align: left; padding: 10px; color: #666; font-size: 0.9em; }
+        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+        .status-open { color: orange; font-weight: bold; }
+        
         .loading { text-align: center; padding: 50px; font-style: italic; color: #888; }
         button:hover { opacity: 0.9; }
     </style>
@@ -27,7 +34,7 @@
         <div id="status-tag">Live Database</div>
     </div>
 
-    <div id="loading-view" class="loading">Fetching data from Supabase...</div>
+    <div id="loading-view" class="loading">Connecting to Supabase...</div>
 
     <div id="main-content" style="display:none;">
         
@@ -36,13 +43,30 @@
             <div class="data-row"><span class="label">Name:</span> <span class="value" id="name"></span></div>
             <div class="data-row"><span class="label">User ID:</span> <span class="value" id="uid"></span></div>
             <div class="data-row"><span class="label">Current Plan:</span> <span class="value" id="plan"></span></div>
-            <div class="data-row"><span class="label">Expiry Date:</span> <span class="value" id="expiry"></span></div>
             <div class="data-row"><span class="label">Status:</span> <span class="value" id="status"></span></div>
             <div class="data-row" style="border:none;">
                 <span class="label">Amount Due:</span> 
                 <span class="balance-red" id="balance"></span>
             </div>
-        </div> <div class="card" style="margin-top: 20px;">
+        </div>
+
+        <div class="card">
+            <h3>Recent Payments</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Invoice</th>
+                    </tr>
+                </thead>
+                <tbody id="payment-list">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="card">
             <h3>Raise a Complaint</h3>
             <form id="complaint-form">
                 <div class="data-row">
@@ -52,11 +76,12 @@
                         <option value="No Internet">No Internet</option>
                         <option value="Slow Speed">Slow Speed</option>
                         <option value="Billing">Billing Issue</option>
-                        <option value="Other Issue">Other Issue</option> </select>
+                        <option value="Other">Other</option>
+                    </select>
                 </div>
                 <div class="data-row" style="flex-direction: column; align-items: flex-start;">
                     <span class="label">Problem Description:</span>
-                    <textarea id="description" rows="4" style="width: 100%; margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="Describe your issue in detail..." required></textarea>
+                    <textarea id="description" rows="3" style="width: 100%; margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="Details..." required></textarea>
                 </div>
                 <button type="submit" id="submit-btn" style="background: #004a7c; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: bold;">
                     Submit Complaint
@@ -67,74 +92,64 @@
 
     </div>
 </div>
+
 <script>
-    // CONNECTION SETUP
     const SUPABASE_URL = 'https://xornzelybefhpcpfrmhl.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_UZD-UWg94FObGgah7XbyUA_64-1uj9M';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // LOAD CUSTOMER DATA
-    async function loadSpeedworldData() {
-        const { data, error } = await _supabase
-            .from('customers')
-            .select('*')
-            .limit(1)
-            .single();
+    async function initDashboard() {
+        // 1. Load Customer
+        const { data: customer } = await _supabase.from('customers').select('*').limit(1).single();
+        
+        if (customer) {
+            document.getElementById('name').innerText = customer.full_name;
+            document.getElementById('uid').innerText = customer.user_id;
+            document.getElementById('plan').innerText = customer.current_plan;
+            document.getElementById('status').innerText = customer.account_status;
+            document.getElementById('balance').innerText = "₹" + customer.current_balance;
 
-        if (error) {
-            console.error('Error:', error);
-            document.getElementById('loading-view').innerText = "Error: Check your Supabase connection!";
-            return;
-        }
-
-        if (data) {
-            document.getElementById('name').innerText = data.full_name;
-            document.getElementById('uid').innerText = data.user_id;
-            document.getElementById('plan').innerText = data.current_plan;
-            document.getElementById('expiry').innerText = data.plan_expiry;
-            document.getElementById('status').innerText = data.account_status;
-            document.getElementById('balance').innerText = "₹" + data.current_balance;
+            // 2. Load Payments for this customer
+            const { data: payments } = await _supabase.from('payments').select('*').eq('customer_id', customer.user_id);
+            
+            if (payments) {
+                let html = '';
+                payments.forEach(p => {
+                    html += `<tr>
+                        <td>${p.payment_date}</td>
+                        <td>₹${p.amount_paid}</td>
+                        <td>${p.pay_method}</td>
+                        <td><a href="${p.invoice_link}" target="_blank" style="color:var(--teal);">View</a></td>
+                    </tr>`;
+                });
+                document.getElementById('payment-list').innerHTML = html;
+            }
 
             document.getElementById('loading-view').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
         }
     }
 
-    // SUBMIT COMPLAINT LOGIC
+    // Handle Form Submission
     document.getElementById('complaint-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('submit-btn');
         const feedback = document.getElementById('form-feedback');
-        
-        btn.disabled = true;
-        btn.innerText = "Submitting...";
+        const { error } = await _supabase.from('tickets').insert([{ 
+            ticket_number: "CR-" + Math.floor(Math.random()*9000),
+            customer_id: document.getElementById('uid').innerText,
+            category: document.getElementById('category').value,
+            problem_desc: document.getElementById('description').value,
+            ticket_status: 'Open'
+        }]);
 
-        // Create a random Ticket Number
-        const ticketNum = "CR-" + Math.floor(1000 + Math.random() * 9000);
-
-        const { error } = await _supabase
-            .from('tickets')
-            .insert([{ 
-                ticket_number: ticketNum,
-                customer_id: document.getElementById('uid').innerText, 
-                category: document.getElementById('category').value,
-                problem_desc: document.getElementById('description').value,
-                ticket_status: 'Open'
-            }]);
-
-        if (error) {
-            feedback.style.color = "red";
-            feedback.innerText = "Error: " + error.message;
-        } else {
+        if (!error) {
             feedback.style.color = "green";
-            feedback.innerText = "Success! Ticket " + ticketNum + " has been raised.";
+            feedback.innerText = "Ticket Raised Successfully!";
             document.getElementById('complaint-form').reset();
         }
-        btn.disabled = false;
-        btn.innerText = "Submit Complaint";
     });
 
-    loadSpeedworldData();
+    initDashboard();
 </script>
 
 </body>
