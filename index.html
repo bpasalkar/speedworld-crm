@@ -10,12 +10,13 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light); margin: 0; padding: 20px; color: #333; }
         .container { max-width: 800px; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; background: var(--blue); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        .card { background: white; padding: 25px; border-radius: 10px; shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid var(--teal); }
+        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid var(--teal); margin-bottom: 20px; }
         .data-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
         .label { font-weight: bold; color: #666; }
         .value { color: var(--blue); font-weight: bold; }
-        .balance-red { color: #d32f2f; font-size: 1.2em; }
+        .balance-red { color: #d32f2f; font-size: 1.2em; font-weight: bold;}
         .loading { text-align: center; padding: 50px; font-style: italic; color: #888; }
+        button:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -40,29 +41,30 @@
                 <span class="label">Amount Due:</span> 
                 <span class="balance-red" id="balance"></span>
             </div>
-            <div class="card" style="margin-top: 20px;">
-    <h3>Raise a Complaint</h3>
-    <form id="complaint-form">
-        <div class="data-row">
-            <span class="label">Category:</span>
-            <select id="category" style="padding: 5px; width: 60%;" required>
-                <option value="">Select a Category</option>
-                <option value="No Internet">No Internet</option>
-                <option value="Slow Speed">Slow Speed</option>
-                <option value="Billing">Billing Issue</option>
-                <option value="Other Issue">Other Issue</option>
-            </select>
         </div>
-        <div class="data-row" style="flex-direction: column; align-items: flex-start;">
-            <span class="label">Problem Description:</span>
-            <textarea id="description" rows="4" style="width: 100%; margin-top: 10px; padding: 10px;" placeholder="Describe your issue in detail..." required></textarea>
-        </div>
-        <button type="submit" id="submit-btn" style="background: #004a7c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%;">
-            Submit Complaint
-        </button>
-    </form>
-    <div id="form-feedback" style="margin-top: 10px; font-weight: bold; text-align: center;"></div>
-</div>
+
+        <div class="card">
+            <h3>Raise a Complaint</h3>
+            <form id="complaint-form">
+                <div class="data-row">
+                    <span class="label">Category:</span>
+                    <select id="category" style="padding: 5px; width: 60%;" required>
+                        <option value="">Select a Category</option>
+                        <option value="No Internet">No Internet</option>
+                        <option value="Slow Speed">Slow Speed</option>
+                        <option value="Billing">Billing Issue</option>
+                        <option value="Other Issue">Other Issue</option>
+                    </select>
+                </div>
+                <div class="data-row" style="flex-direction: column; align-items: flex-start;">
+                    <span class="label">Problem Description:</span>
+                    <textarea id="description" rows="4" style="width: 100%; margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="Describe your issue in detail..." required></textarea>
+                </div>
+                <button type="submit" id="submit-btn" style="background: #004a7c; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%; font-weight: bold;">
+                    Submit Complaint
+                </button>
+            </form>
+            <div id="form-feedback" style="margin-top: 10px; font-weight: bold; text-align: center;"></div>
         </div>
     </div>
 </div>
@@ -73,8 +75,8 @@
     const SUPABASE_KEY = 'sb_publishable_UZD-UWg94FObGgah7XbyUA_64-1uj9M';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // LOAD CUSTOMER DATA
     async function loadSpeedworldData() {
-        // Fetch the first user from your 'customers' table
         const { data, error } = await _supabase
             .from('customers')
             .select('*')
@@ -83,12 +85,11 @@
 
         if (error) {
             console.error('Error:', error);
-            document.getElementById('loading-view').innerText = "Error: Check if 'customers' table exists!";
+            document.getElementById('loading-view').innerText = "Error: Check your Supabase connection!";
             return;
         }
 
         if (data) {
-            // Update the UI with your CSV data
             document.getElementById('name').innerText = data.full_name;
             document.getElementById('uid').innerText = data.user_id;
             document.getElementById('plan').innerText = data.current_plan;
@@ -96,11 +97,44 @@
             document.getElementById('status').innerText = data.account_status;
             document.getElementById('balance').innerText = "₹" + data.current_balance;
 
-            // Show content, hide loading
             document.getElementById('loading-view').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
         }
     }
+
+    // SUBMIT COMPLAINT LOGIC
+    document.getElementById('complaint-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submit-btn');
+        const feedback = document.getElementById('form-feedback');
+        
+        btn.disabled = true;
+        btn.innerText = "Submitting...";
+
+        // Create a random Ticket Number
+        const ticketNum = "CR-" + Math.floor(1000 + Math.random() * 9000);
+
+        const { error } = await _supabase
+            .from('tickets')
+            .insert([{ 
+                ticket_number: ticketNum,
+                customer_id: document.getElementById('uid').innerText, 
+                category: document.getElementById('category').value,
+                problem_desc: document.getElementById('description').value,
+                ticket_status: 'Open'
+            }]);
+
+        if (error) {
+            feedback.style.color = "red";
+            feedback.innerText = "Error: " + error.message;
+        } else {
+            feedback.style.color = "green";
+            feedback.innerText = "Success! Ticket " + ticketNum + " has been raised.";
+            document.getElementById('complaint-form').reset();
+        }
+        btn.disabled = false;
+        btn.innerText = "Submit Complaint";
+    });
 
     loadSpeedworldData();
 </script>
