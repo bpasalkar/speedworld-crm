@@ -3,79 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speedworld CRM - Dashboard</title>
+    <title>Speedworld CRM</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --blue: #004a7c; --teal: #008080; --light: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light); margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; background: var(--blue); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid var(--teal); margin-bottom: 20px; }
-        .data-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .label { font-weight: bold; color: #666; }
-        .value { color: var(--blue); font-weight: bold; }
-        .balance-red { color: #d32f2f; font-size: 1.2em; font-weight: bold;}
+        :root { --blue: #004a7c; --teal: #008080; --light: #f0f2f5; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding-bottom: 80px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: #eee; text-align: left; padding: 10px; color: #666; font-size: 0.85em; text-transform: uppercase; }
-        td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+        /* Sleek Header */
+        .app-header { background: var(--blue); color: white; padding: 30px 20px; border-radius: 0 0 25px 25px; text-align: center; }
         
-        /* Status Badge Colors */
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
-        .open { background: #fff3e0; color: #ef6c00; } /* Orange for Open */
-        .progress { background: #e3f2fd; color: #1565c0; } /* Blue for In Progress */
-        .closed { background: #e8f5e9; color: #2e7d32; } /* Green for Closed */
-
-        button:hover { opacity: 0.9; cursor: pointer; }
+        .container { max-width: 500px; margin: -40px auto 0; padding: 0 15px; }
+        
+        /* Action Cards */
+        .card { background: var(--white); border-radius: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        
+        /* Usage Gauge */
+        .usage-container { margin: 15px 0; }
+        .progress-bar { background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; }
+        .progress-fill { background: var(--teal); height: 100%; width: 0%; transition: width 1s; }
+        
+        /* Grid Buttons */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .action-btn { background: var(--white); border: 1px solid #eee; padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; }
+        .action-btn i { font-size: 24px; color: var(--blue); margin-bottom: 8px; display: block; }
+        
+        /* Dynamic Payment Button */
+        #pay-button { background: #d32f2f; color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; margin-top: 10px; display: none; }
+        
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+        .open { background: #fff3e0; color: #ef6c00; }
     </style>
 </head>
 <body>
 
+<div class="app-header">
+    <h2 style="margin:0;">Speedworld</h2>
+    <p id="greet">Hello, Subscriber</p>
+</div>
+
 <div class="container">
-    <div class="header">
-        <h2>Speedworld Admin Panel</h2>
-        <div id="status-tag">Live Database</div>
+    <div class="card">
+        <div style="display:flex; justify-content:space-between;">
+            <span id="plan-name" style="font-weight:bold; color:var(--blue);">Loading Plan...</span>
+            <span class="badge open" id="status-label">Active</span>
+        </div>
+        
+        <div class="usage-container">
+            <p style="font-size:12px; color:#666;">Plan Validity</p>
+            <div class="progress-bar"><div id="expiry-progress" class="progress-fill"></div></div>
+            <p id="expiry-text" style="font-size:12px; margin-top:5px; text-align:right;">-- days left</p>
+        </div>
+
+        <div id="balance-section">
+            <p style="margin:0; font-size:14px;">Due Amount:</p>
+            <h1 id="balance-amt" style="margin:5px 0; color:#d32f2f;">₹0</h1>
+            <button id="pay-button" onclick="alert('Redirecting to Payment Gateway...')">PAY NOW</button>
+        </div>
     </div>
 
-    <div id="main-content">
-        <div class="card">
-            <h3>Customer Overview</h3>
-            <div class="data-row"><span class="label">Name:</span> <span class="value" id="name">Loading...</span></div>
-            <div class="data-row"><span class="label">User ID:</span> <span class="value" id="uid"></span></div>
-            <div class="data-row"><span class="label">Plan:</span> <span class="value" id="plan"></span></div>
-            <div class="data-row" style="border:none;"><span class="label">Amount Due:</span> <span class="balance-red" id="balance"></span></div>
+    <div class="action-grid">
+        <div class="action-btn" onclick="scrollToSupport()">
+            <i class="fa-solid fa-headset"></i>
+            <span>Support</span>
         </div>
+        <div class="action-btn">
+            <i class="fa-solid fa-repeat"></i>
+            <span>Change Plan</span>
+        </div>
+    </div>
 
-        <div class="card">
-            <h3>Recent Payments</h3>
-            <table>
-                <thead><tr><th>Date</th><th>Amount</th><th>Method</th></tr></thead>
-                <tbody id="payment-list"></tbody>
-            </table>
-        </div>
-
-        <div class="card">
-            <h3>Your Tickets</h3>
-            <table>
-                <thead><tr><th>ID</th><th>Category</th><th>Status</th></tr></thead>
-                <tbody id="ticket-list"></tbody>
-            </table>
-        </div>
-
-        <div class="card">
-            <h3>Raise a Complaint</h3>
-            <form id="complaint-form">
-                <select id="category" style="width: 100%; padding: 10px; margin-bottom: 10px;" required>
-                    <option value="">Select Category</option>
-                    <option value="No Internet">No Internet</option>
-                    <option value="Slow Speed">Slow Speed</option>
-                    <option value="Billing">Billing Issue</option>
-                </select>
-                <textarea id="description" rows="3" style="width: 100%; padding: 10px; box-sizing: border-box;" placeholder="Describe issue..." required></textarea>
-                <button type="submit" id="submit-btn" style="background: var(--blue); color: white; border: none; padding: 12px; border-radius: 5px; width: 100%; margin-top: 10px; font-weight: bold;">Submit Complaint</button>
-            </form>
-            <div id="form-feedback" style="margin-top: 10px; text-align: center;"></div>
-        </div>
+    <div class="card" style="margin-top:20px;">
+        <h3>Active Requests</h3>
+        <div id="ticket-list" style="font-size: 14px;"></div>
     </div>
 </div>
 
@@ -84,50 +84,41 @@
     const SUPABASE_KEY = 'sb_publishable_UZD-UWg94FObGgah7XbyUA_64-1uj9M';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function loadDashboard() {
+    async function initApp() {
         const { data: user } = await _supabase.from('customers').select('*').limit(1).single();
+        
         if (user) {
-            document.getElementById('name').innerText = user.full_name;
-            document.getElementById('uid').innerText = user.user_id;
-            document.getElementById('plan').innerText = user.current_plan;
-            document.getElementById('balance').innerText = "₹" + user.current_balance;
+            document.getElementById('greet').innerText = "Hello, " + user.full_name;
+            document.getElementById('plan-name').innerText = user.current_plan;
+            document.getElementById('balance-amt').innerText = "₹" + user.current_balance;
+            
+            // 1. Show Payment Button if balance exists
+            if (user.current_balance > 0) {
+                document.getElementById('pay-button').style.display = 'block';
+            }
 
-            // Load Payments
-            const { data: pays } = await _supabase.from('payments').select('*').eq('customer_id', user.user_id);
-            document.getElementById('payment-list').innerHTML = pays.map(p => 
-                `<tr><td>${p.payment_date}</td><td>₹${p.amount_paid}</td><td>${p.pay_method}</td></tr>`).join('');
+            // 2. Logic for Expiry Progress (assuming 30-day plans)
+            const daysLeft = 15; // In real app, calculate from user.plan_expiry
+            const percent = (daysLeft / 30) * 100;
+            document.getElementById('expiry-progress').style.width = percent + "%";
+            document.getElementById('expiry-text').innerText = daysLeft + " days left";
 
-            // Load Tickets
-            refreshTickets(user.user_id);
+            // 3. Load Tickets
+            const { data: tickets } = await _supabase.from('tickets').select('*').eq('customer_id', user.user_id);
+            document.getElementById('ticket-list').innerHTML = tickets.map(t => 
+                `<div style="padding:10px 0; border-bottom:1px solid #eee;">
+                    <strong>${t.ticket_number}</strong> - ${t.ticket_status}<br>
+                    <small>${t.category}</small>
+                </div>`).join('');
         }
     }
 
-    async function refreshTickets(uid) {
-        const { data: tickets } = await _supabase.from('tickets').select('*').eq('customer_id', uid);
-        document.getElementById('ticket-list').innerHTML = tickets.map(t => {
-            let s = t.ticket_status.toLowerCase().replace(" ", "");
-            return `<tr><td>${t.ticket_number}</td><td>${t.category}</td><td><span class="badge ${s}">${t.ticket_status}</span></td></tr>`;
-        }).join('');
+    function scrollToSupport() {
+        alert("Support form would open here!");
     }
 
-    document.getElementById('complaint-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const uid = document.getElementById('uid').innerText;
-        const { error } = await _supabase.from('tickets').insert([{ 
-            ticket_number: "CR-" + Math.floor(Math.random()*9000),
-            customer_id: uid,
-            category: document.getElementById('category').value,
-            problem_desc: document.getElementById('description').value,
-            ticket_status: 'Open'
-        }]);
-        if (!error) {
-            document.getElementById('form-feedback').innerText = "Ticket Added!";
-            document.getElementById('complaint-form').reset();
-            refreshTickets(uid); // Update list immediately!
-        }
-    });
-
-    loadDashboard();
+    initApp();
 </script>
+
 </body>
 </html>
